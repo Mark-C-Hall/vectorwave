@@ -1,11 +1,21 @@
+import { UserButton, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import Head from "next/head";
-import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
-
-import { api } from "~/utils/api";
 
 export default function Home() {
-  const hello = api.post.hello.useQuery({ text: "from tRPC" });
+  const router = useRouter();
+  const { isSignedIn, isLoaded } = useUser();
+
+  useEffect(() => {
+    // If the user is not signed in, redirect to the login page
+    if (!isSignedIn && isLoaded) {
+      router.replace("/auth/login");
+    }
+  }, [isSignedIn, isLoaded, router]);
+
+  // If not signed in, return null to prevent a flash of unauthorized content
+  if (!isSignedIn) return null;
 
   return (
     <>
@@ -16,7 +26,8 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div className="h-screen">
-          <UserButton afterSignOutUrl="/" />
+          <UserButton afterSignOutUrl="/auth/login" />
+          <h1>Main Content</h1>
         </div>
       </main>
     </>
