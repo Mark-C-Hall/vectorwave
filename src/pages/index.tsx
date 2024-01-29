@@ -10,7 +10,9 @@ export default function Home() {
   useEffect(() => {
     // If the user is not signed in, redirect to the login page
     if (!isSignedIn && isLoaded) {
-      router.replace("/auth/login");
+      router.replace("/auth/login").catch((err) => {
+        console.error("Failed to redirect:", err);
+      });
     }
   }, [isSignedIn, isLoaded, router]);
 

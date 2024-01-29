@@ -11,7 +11,9 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      router.replace("/");
+      router.replace("/").catch((err) => {
+        console.error("Failed to redirect:", err);
+      });
     }
   }, [router, isLoaded, isSignedIn]);
 
