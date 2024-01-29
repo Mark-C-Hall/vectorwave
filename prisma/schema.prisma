@@ -10,7 +10,7 @@ generator client {
 
 model User {
     id            String         @id @default(cuid())
-    authId        String
+    authId        String         @unique
     conversations Conversation[]
 
     @@index([authId], name: "authIdIndex")
