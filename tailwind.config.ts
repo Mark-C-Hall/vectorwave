@@ -5,10 +5,11 @@ export default {
   content: ["./src/**/*.tsx"],
   theme: {
     extend: {
+      scrollbar: ["rounded", "dark"],
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwind-scrollbar")],
 } satisfies Config;
