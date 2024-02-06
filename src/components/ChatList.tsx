@@ -1,7 +1,9 @@
 import type { Conversation } from "@prisma/client";
 import { UserButton, useUser } from "@clerk/nextjs";
+import { useState } from "react";
 
 import ChatItem from "./ChatItem";
+import NewChatModal from "./NewChatModal";
 
 interface Props {
   conversations: Conversation[];
@@ -15,9 +17,28 @@ export default function ChatList({
   onDelete,
 }: Props) {
   const { user } = useUser();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  function handleNewChatButtonClick() {
+    setIsModalOpen(true);
+  }
+
+  function handleModalClose() {
+    setIsModalOpen(false);
+  }
+
+  function handleCreateChat(title: string) {
+    console.log(`Creating new chat with title: ${title}`);
+    // Here you can call your API to create a new chat
+    setIsModalOpen(false);
+  }
+
   return (
     <aside className="flex h-screen w-[260px] flex-col items-center bg-black p-4">
-      <button className="mb-14 mt-5 flex items-center justify-center rounded border border-white bg-black px-4 py-2 text-base text-white hover:bg-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <button
+        onClick={handleNewChatButtonClick}
+        className="mb-14 mt-5 flex items-center justify-center rounded border border-white bg-black px-4 py-2 text-base text-white hover:bg-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -34,7 +55,12 @@ export default function ChatList({
         </svg>
         New Chat
       </button>
-      <div className="scrollbar scrollbar-thumb-gray-500 scrollbar-track-gray-100 flex-grow overflow-auto">
+      <NewChatModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onCreate={handleCreateChat}
+      />
+      <div className="flex-grow overflow-auto scrollbar scrollbar-track-gray-100 scrollbar-thumb-gray-500">
         {chats.map((chat) => (
           <ChatItem
             key={chat.id}
