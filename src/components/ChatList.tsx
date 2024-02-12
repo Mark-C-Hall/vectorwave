@@ -4,20 +4,21 @@ import { useState } from "react";
 
 import ChatItem from "./ChatItem";
 import NewChatModal from "./NewChatModal";
+import EditChatTitleModal from "./EditChatModal";
 
 interface Props {
   conversations: Conversation[];
-  onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
 export default function ChatList({
-  conversations: chats,
-  onEdit,
+  conversations: initialChats,
   onDelete,
 }: Props) {
   const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
+  const [chats, setChats] = useState(initialChats);
 
   function handleNewChatButtonClick() {
     setIsModalOpen(true);
@@ -30,7 +31,26 @@ export default function ChatList({
   function handleCreateChat(title: string) {
     console.log(`Creating new chat with title: ${title}`);
     // Here you can call your API to create a new chat
+    const newChat = {
+      id: Math.random().toString(36).substring(7),
+      userId: user?.id ?? "",
+      title,
+    };
+    const updatedChats = [...chats, newChat];
+    setChats(updatedChats);
     setIsModalOpen(false);
+  }
+
+  function handleEdit(newTitle: string) {
+    console.log(`Editing chat title to: ${newTitle}`);
+    // Find the chat in the chats array and update its title
+    const updatedChats = chats.map((chat) =>
+      chat.id === selectedChat!.id ? { ...chat, title: newTitle } : chat,
+    );
+    // Here you can call your API to update the chat title
+    // Update the state with the new chats array
+    setChats(updatedChats);
+    setSelectedChat(null);
   }
 
   return (
@@ -60,12 +80,18 @@ export default function ChatList({
         onClose={handleModalClose}
         onCreate={handleCreateChat}
       />
+      <EditChatTitleModal
+        isOpen={!!selectedChat}
+        currentTitle={selectedChat?.title ?? ""}
+        onCancel={() => setSelectedChat(null)}
+        onSave={handleEdit}
+      />
       <div className="flex-grow overflow-auto scrollbar scrollbar-track-gray-100 scrollbar-thumb-gray-500">
         {chats.map((chat) => (
           <ChatItem
             key={chat.id}
             chat={chat}
-            onEdit={() => onEdit(chat.id)}
+            onEdit={() => setSelectedChat(chat)}
             onDelete={() => onDelete(chat.id)}
           />
         ))}

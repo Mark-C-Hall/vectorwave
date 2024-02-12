@@ -33,16 +33,11 @@ export default function Home() {
       <main className="flex">
         <ChatList
           conversations={[
-            {
-              id: "1",
-              userId: "user1",
-              title: "Lorem Ipsum blah blah blah blah blah",
-            },
+            { id: "1", userId: "user1", title: "Chat 1" },
             { id: "2", userId: "user1", title: "Chat 2" },
             { id: "3", userId: "user1", title: "Chat 3" },
             { id: "4", userId: "user1", title: "Chat 4" },
           ]}
-          onEdit={(id: string) => console.log("Edit", id)}
           onDelete={(id: string) => console.log("Delete", id)}
         />
         <div className="flex-1 p-4">

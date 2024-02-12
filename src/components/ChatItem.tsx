@@ -15,7 +15,7 @@ export default function ChatItem({
     console.log("Clicked on conversation: ", chatId);
   }
   return (
-    <div className="group m-auto flex h-8 max-w-60 cursor-pointer items-center justify-between rounded-lg px-1 py-1 hover:bg-gray-700">
+    <div className="group m-auto flex h-8 w-60 cursor-pointer items-center justify-between rounded-lg px-1 py-1 hover:bg-gray-700">
       <div
         className="flex-grow truncate"
         onClick={() => handleChatItemClick(conversation.id)}
