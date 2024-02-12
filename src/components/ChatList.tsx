@@ -5,19 +5,18 @@ import { useState } from "react";
 import ChatItem from "./ChatItem";
 import NewChatModal from "./NewChatModal";
 import EditChatTitleModal from "./EditChatModal";
+import DeleteConfirmation from "./DeleteConfirmation";
 
 interface Props {
   conversations: Conversation[];
-  onDelete: (id: string) => void;
 }
 
-export default function ChatList({
-  conversations: initialChats,
-  onDelete,
-}: Props) {
+export default function ChatList({ conversations: initialChats }: Props) {
   const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
+  const [chatToDelete, setChatToDelete] = useState<Conversation | null>(null);
   const [chats, setChats] = useState(initialChats);
 
   function handleNewChatButtonClick() {
@@ -53,6 +52,19 @@ export default function ChatList({
     setSelectedChat(null);
   }
 
+  function handleDeleteChat(id: string) {
+    console.log(`Deleting chat with id: ${id}`);
+    // Here you can call your API to delete the chat
+    const updatedChats = chats.filter((chat) => chat.id !== id);
+    setChats(updatedChats);
+    setIsDeleteModalOpen(false); // Close the delete confirmation modal
+  }
+
+  function promptDeleteChat(chat: Conversation) {
+    setChatToDelete(chat);
+    setIsDeleteModalOpen(true); // Open the delete confirmation modal
+  }
+
   return (
     <aside className="flex h-screen w-[260px] flex-col items-center bg-black p-4">
       <button
@@ -86,13 +98,18 @@ export default function ChatList({
         onCancel={() => setSelectedChat(null)}
         onSave={handleEdit}
       />
+      <DeleteConfirmation
+        isOpen={isDeleteModalOpen}
+        onDelete={() => chatToDelete && handleDeleteChat(chatToDelete.id)}
+        onCancel={() => setIsDeleteModalOpen(false)}
+      />
       <div className="flex-grow overflow-auto scrollbar scrollbar-track-gray-100 scrollbar-thumb-gray-500">
         {chats.map((chat) => (
           <ChatItem
             key={chat.id}
             chat={chat}
             onEdit={() => setSelectedChat(chat)}
-            onDelete={() => onDelete(chat.id)}
+            onDelete={() => promptDeleteChat(chat)}
           />
         ))}
       </div>

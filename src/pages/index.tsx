@@ -38,7 +38,6 @@ export default function Home() {
             { id: "3", userId: "user1", title: "Chat 3" },
             { id: "4", userId: "user1", title: "Chat 4" },
           ]}
-          onDelete={(id: string) => console.log("Delete", id)}
         />
         <div className="flex-1 p-4">
           <h1 className="mb-4 text-2xl font-bold">Main Content</h1>
