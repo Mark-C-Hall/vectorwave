@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 interface DeleteConfirmationProps {
   isOpen: boolean;
@@ -11,16 +11,25 @@ export default function DeleteConfirmation({
   onDelete,
   onCancel,
 }: DeleteConfirmationProps) {
-  const handleDelete = () => {
-    onDelete();
-  };
+  const firstButtonRef = useRef<HTMLButtonElement>(null);
 
-  const handleCancel = () => {
-    onCancel();
+  useEffect(() => {
+    if (isOpen) {
+      firstButtonRef.current?.focus();
+    }
+  }, [isOpen]);
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Escape") {
+      onCancel();
+    }
   };
 
   return isOpen ? (
-    <div className="fixed inset-0 z-10 overflow-y-auto">
+    <div
+      className="fixed inset-0 z-10 overflow-y-auto"
+      onKeyDown={handleKeyDown}
+    >
       <div className="flex min-h-screen items-center justify-center">
         <div className="w-96 rounded-lg bg-gray-400 p-8">
           <h2 className="text-center text-2xl font-medium text-gray-900">
@@ -31,13 +40,14 @@ export default function DeleteConfirmation({
           </p>
           <div className="mt-5 flex justify-end">
             <button
-              onClick={handleDelete}
+              ref={firstButtonRef}
+              onClick={onDelete}
               className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-black px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Delete
             </button>
             <button
-              onClick={handleCancel}
+              onClick={onCancel}
               className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-black px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             >
               Cancel

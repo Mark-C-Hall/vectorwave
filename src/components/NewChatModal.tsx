@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface Props {
   isOpen: boolean;
@@ -8,10 +8,29 @@ interface Props {
 
 export default function NewChatModal({ isOpen, onClose, onCreate }: Props) {
   const [newChatTitle, setNewChatTitle] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      inputRef.current?.focus();
+    }
+  }, [isOpen]);
 
   function handleCreateButtonClick() {
-    onCreate(newChatTitle);
+    if (newChatTitle.trim() === "") {
+      alert("Please enter a chat title.");
+      return;
+    }
+    onCreate(newChatTitle.trim());
     setNewChatTitle("");
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent) {
+    if (event.key === "Enter") {
+      handleCreateButtonClick();
+    } else if (event.key === "Escape") {
+      onClose();
+    }
   }
 
   return isOpen ? (
@@ -39,6 +58,7 @@ export default function NewChatModal({ isOpen, onClose, onCreate }: Props) {
             <div className="mt-1">
               <input
                 type="text"
+                ref={inputRef}
                 name="chat-title"
                 id="chat-title"
                 className="block w-full rounded-md border-gray-300 pl-3 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
@@ -46,6 +66,7 @@ export default function NewChatModal({ isOpen, onClose, onCreate }: Props) {
                 onChange={(e) => setNewChatTitle(e.target.value)}
                 placeholder="Enter chat title"
                 autoComplete="off"
+                onKeyDown={handleKeyDown}
               />
             </div>
           </div>
