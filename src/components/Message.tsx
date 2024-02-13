@@ -20,11 +20,15 @@ export default function MessageItem({ message }: Props) {
         }`}
       >
         <div
-          className="flex flex-1 items-center px-6 py-5 pl-16"
+          className="flex flex-1 items-center px-20 py-5"
           style={{ maxWidth: "none" }}
         >
           {isFromUser ? <UserIcon /> : <BotIcon />}
-          <p className={`mx-auto max-w-[650px] flex-1 `}>{message.content}</p>
+          <p className="mx-auto max-w-[650px] flex-1">{message.content}</p>
+          {/* Div is used to center above p evenly */}
+          <div className="invisible">
+            <UserIcon />
+          </div>
         </div>
       </div>
     </div>
