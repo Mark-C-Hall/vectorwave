@@ -32,7 +32,7 @@ export default function Home() {
       </Head>
       <main className="flex">
         <ChatList
-          conversations={[
+          chats={[
             { id: "1", userId: "user1", title: "Chat 1" },
             { id: "2", userId: "user1", title: "Chat 2" },
             { id: "3", userId: "user1", title: "Chat 3" },

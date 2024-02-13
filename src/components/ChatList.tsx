@@ -8,24 +8,40 @@ import EditChatTitleModal from "./EditChatModal";
 import DeleteConfirmation from "./DeleteConfirmation";
 
 interface Props {
-  conversations: Conversation[];
+  chats: Conversation[];
 }
 
-export default function ChatList({ conversations: initialChats }: Props) {
+export default function ChatList({ chats: initialChats }: Props) {
   const { user } = useUser();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isNewChatModalOpen, setNewChatModalOpen] = useState(false);
+  const [isEditChatModalOpen, setEditChatModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
-  const [chatToDelete, setChatToDelete] = useState<Conversation | null>(null);
   const [chats, setChats] = useState(initialChats);
 
-  function handleNewChatButtonClick() {
-    setIsModalOpen(true);
-  }
+  // New Chat Modal
+  const openNewChatModal = () => setNewChatModalOpen(true);
+  const closeNewChatModal = () => setNewChatModalOpen(false);
 
-  function handleModalClose() {
-    setIsModalOpen(false);
-  }
+  // Edit Chat Modal
+  const openEditChatModal = (chat: Conversation) => {
+    setSelectedChat(chat);
+    setEditChatModalOpen(true);
+  };
+  const closeEditChatModal = () => {
+    setSelectedChat(null);
+    setEditChatModalOpen(false);
+  };
+
+  // Delete Confirmation Modal
+  const openDeleteConfirmationModal = (chat: Conversation) => {
+    setSelectedChat(chat);
+    setDeleteModalOpen(true);
+  };
+  const closeDeleteConfirmationModal = () => {
+    setSelectedChat(null);
+    setDeleteModalOpen(false);
+  };
 
   function handleCreateChat(title: string) {
     console.log(`Creating new chat with title: ${title}`);
@@ -37,19 +53,18 @@ export default function ChatList({ conversations: initialChats }: Props) {
     };
     const updatedChats = [...chats, newChat];
     setChats(updatedChats);
-    setIsModalOpen(false);
+    setNewChatModalOpen(false);
   }
 
   function handleEdit(newTitle: string) {
     console.log(`Editing chat title to: ${newTitle}`);
-    // Find the chat in the chats array and update its title
+    // Here you can call your API to update the chat title
     const updatedChats = chats.map((chat) =>
       chat.id === selectedChat!.id ? { ...chat, title: newTitle } : chat,
     );
-    // Here you can call your API to update the chat title
-    // Update the state with the new chats array
     setChats(updatedChats);
     setSelectedChat(null);
+    setEditChatModalOpen(false);
   }
 
   function handleDeleteChat(id: string) {
@@ -57,18 +72,13 @@ export default function ChatList({ conversations: initialChats }: Props) {
     // Here you can call your API to delete the chat
     const updatedChats = chats.filter((chat) => chat.id !== id);
     setChats(updatedChats);
-    setIsDeleteModalOpen(false); // Close the delete confirmation modal
-  }
-
-  function promptDeleteChat(chat: Conversation) {
-    setChatToDelete(chat);
-    setIsDeleteModalOpen(true); // Open the delete confirmation modal
+    setDeleteModalOpen(false);
   }
 
   return (
     <aside className="flex h-screen w-[260px] flex-col items-center bg-black p-4">
       <button
-        onClick={handleNewChatButtonClick}
+        onClick={openNewChatModal}
         className="mb-14 mt-5 flex items-center justify-center rounded border border-white bg-black px-4 py-2 text-base text-white hover:bg-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <svg
@@ -88,28 +98,28 @@ export default function ChatList({ conversations: initialChats }: Props) {
         New Chat
       </button>
       <NewChatModal
-        isOpen={isModalOpen}
-        onCancel={handleModalClose}
+        isOpen={isNewChatModalOpen}
         onCreate={handleCreateChat}
+        onCancel={closeNewChatModal}
       />
       <EditChatTitleModal
-        isOpen={!!selectedChat}
+        isOpen={isEditChatModalOpen}
         currentTitle={selectedChat?.title ?? ""}
-        onCancel={() => setSelectedChat(null)}
         onEdit={handleEdit}
+        onCancel={closeEditChatModal}
       />
       <DeleteConfirmation
         isOpen={isDeleteModalOpen}
-        onDelete={() => chatToDelete && handleDeleteChat(chatToDelete.id)}
-        onCancel={() => setIsDeleteModalOpen(false)}
+        onDelete={() => selectedChat && handleDeleteChat(selectedChat.id)}
+        onCancel={closeDeleteConfirmationModal}
       />
       <div className="flex-grow overflow-auto scrollbar scrollbar-track-gray-100 scrollbar-thumb-gray-500">
         {chats.map((chat) => (
           <ChatItem
             key={chat.id}
             chat={chat}
-            onEdit={() => setSelectedChat(chat)}
-            onDelete={() => promptDeleteChat(chat)}
+            onEdit={() => openEditChatModal(chat)}
+            onDelete={() => openDeleteConfirmationModal(chat)}
           />
         ))}
       </div>
