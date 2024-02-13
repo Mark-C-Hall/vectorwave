@@ -1,4 +1,5 @@
 import type { Message } from "@prisma/client";
+import React from "react";
 
 import BotIcon from "./icons/BotIcon";
 import UserIcon from "./icons/UserIcon";
@@ -24,7 +25,13 @@ export default function MessageItem({ message }: Props) {
           style={{ maxWidth: "none" }}
         >
           {isFromUser ? <UserIcon /> : <BotIcon />}
-          <p className="mx-auto max-w-[650px] flex-1">{message.content}</p>
+          <div className="mx-auto max-w-[650px] flex-1">
+            {message.content.split("\n").map((line, index) => (
+              <p className="my-4" key={index}>
+                {line}
+              </p>
+            ))}
+          </div>
           {/* Div is used to center above p evenly */}
           <div className="invisible">
             <UserIcon />
