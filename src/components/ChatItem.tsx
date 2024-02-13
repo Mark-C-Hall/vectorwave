@@ -1,5 +1,5 @@
 import type { Conversation } from "@prisma/client";
-import React from "react";
+
 import EditIcon from "./icons/EditIcon";
 import DeleteIcon from "./icons/DeleteIcon";
 
