@@ -89,14 +89,14 @@ export default function ChatList({ conversations: initialChats }: Props) {
       </button>
       <NewChatModal
         isOpen={isModalOpen}
-        onClose={handleModalClose}
+        onCancel={handleModalClose}
         onCreate={handleCreateChat}
       />
       <EditChatTitleModal
         isOpen={!!selectedChat}
         currentTitle={selectedChat?.title ?? ""}
         onCancel={() => setSelectedChat(null)}
-        onSave={handleEdit}
+        onEdit={handleEdit}
       />
       <DeleteConfirmation
         isOpen={isDeleteModalOpen}

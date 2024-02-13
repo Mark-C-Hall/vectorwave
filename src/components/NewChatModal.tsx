@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from "react";
 
 interface Props {
   isOpen: boolean;
-  onClose: () => void;
   onCreate: (title: string) => void;
+  onCancel: () => void;
 }
 
-export default function NewChatModal({ isOpen, onClose, onCreate }: Props) {
-  const [newChatTitle, setNewChatTitle] = useState("");
+export default function NewChatModal({ isOpen, onCreate, onCancel }: Props) {
+  const [newTitle, setNewTitle] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -17,19 +17,19 @@ export default function NewChatModal({ isOpen, onClose, onCreate }: Props) {
   }, [isOpen]);
 
   function handleCreateButtonClick() {
-    if (newChatTitle.trim() === "") {
+    if (newTitle.trim() === "") {
       alert("Please enter a chat title.");
       return;
     }
-    onCreate(newChatTitle.trim());
-    setNewChatTitle("");
+    onCreate(newTitle.trim());
+    setNewTitle("");
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === "Enter") {
       handleCreateButtonClick();
     } else if (event.key === "Escape") {
-      onClose();
+      onCancel();
     }
   }
 
@@ -62,8 +62,8 @@ export default function NewChatModal({ isOpen, onClose, onCreate }: Props) {
                 name="chat-title"
                 id="chat-title"
                 className="block w-full rounded-md border-gray-300 pl-3 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                value={newChatTitle}
-                onChange={(e) => setNewChatTitle(e.target.value)}
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
                 placeholder="Enter chat title"
                 autoComplete="off"
                 onKeyDown={handleKeyDown}
@@ -78,7 +78,7 @@ export default function NewChatModal({ isOpen, onClose, onCreate }: Props) {
               Create
             </button>
             <button
-              onClick={onClose}
+              onClick={onCancel}
               className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-black px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             >
               Cancel

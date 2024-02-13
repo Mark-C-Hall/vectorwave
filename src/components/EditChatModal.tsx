@@ -3,15 +3,15 @@ import React, { useEffect, useRef, useState } from "react";
 interface Props {
   isOpen: boolean;
   currentTitle: string;
+  onEdit: (newTitle: string) => void;
   onCancel: () => void;
-  onSave: (newTitle: string) => void;
 }
 
 export default function EditChatTitleModal({
   isOpen,
   currentTitle,
+  onEdit,
   onCancel,
-  onSave,
 }: Props) {
   const [newTitle, setNewTitle] = useState(currentTitle);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -39,7 +39,7 @@ export default function EditChatTitleModal({
       alert("Please enter a chat title.");
       return;
     }
-    onSave(newTitle);
+    onEdit(newTitle);
   };
 
   return isOpen ? (
