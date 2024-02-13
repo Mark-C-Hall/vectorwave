@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import ChatItem from "./ChatItem";
 import NewChatModal from "./NewChatModal";
-import EditChatTitleModal from "./EditChatModal";
-import DeleteConfirmation from "./DeleteConfirmation";
+import EditChatModal from "./EditChatModal";
+import DeleteConfirmation from "./DeleteChatModal";
 
 interface Props {
   chats: Conversation[];
@@ -102,7 +102,7 @@ export default function ChatList({ chats: initialChats }: Props) {
         onCreate={handleCreateChat}
         onCancel={closeNewChatModal}
       />
-      <EditChatTitleModal
+      <EditChatModal
         isOpen={isEditChatModalOpen}
         currentTitle={selectedChat?.title ?? ""}
         onEdit={handleEdit}

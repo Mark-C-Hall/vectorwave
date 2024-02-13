@@ -7,7 +7,7 @@ interface Props {
   onCancel: () => void;
 }
 
-export default function EditChatTitleModal({
+export default function EditChatModal({
   isOpen,
   currentTitle,
   onEdit,

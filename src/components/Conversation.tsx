@@ -1,7 +1,7 @@
 import type { Message } from "@prisma/client";
 import { useEffect, useRef } from "react";
 
-import MessageItem from "./Message";
+import MessageItem from "./MessageItem";
 import MessageInput from "./MessageInput";
 
 interface Props {

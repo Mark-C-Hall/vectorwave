@@ -2,6 +2,7 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import Head from "next/head";
+
 import ChatList from "~/components/ChatList";
 import Conversation from "~/components/Conversation";
 

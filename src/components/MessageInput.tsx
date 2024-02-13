@@ -15,7 +15,7 @@ export default function MessageInput() {
 
   return (
     <form
-      className="mx-auto mb-4 flex w-full max-w-[650px] items-stretch  rounded-lg border-2 border-white bg-slate-800"
+      className="mx-auto my-4 flex w-full max-w-[650px] items-stretch  rounded-lg border-2 border-white bg-slate-800"
       onSubmit={handleSubmit}
     >
       <textarea
