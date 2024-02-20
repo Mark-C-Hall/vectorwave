@@ -1,17 +1,18 @@
-import type { Message } from "@prisma/client";
-import { useRef, useState, useLayoutEffect } from "react";
-
+import type { Conversation, Message } from "@prisma/client";
+import { useRef, useState, useLayoutEffect, useEffect } from "react";
 import MessageItem from "./MessageItem";
 import MessageInput from "./MessageInput";
 
 interface Props {
-  conversationId: string;
+  conversation: Conversation;
   messages: Message[];
+  onNewMessage: (newMessage: Message) => void;
 }
 
-export default function Conversation({
-  conversationId,
+export default function ConversationComponent({
+  conversation,
   messages: initialMessages,
+  onNewMessage,
 }: Props) {
   const [messages, setMessages] = useState(initialMessages);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -23,38 +24,21 @@ export default function Conversation({
     }
   }, [messages]);
 
+  useEffect(() => {
+    setMessages(initialMessages);
+  }, [initialMessages]);
+
+  const createMessage = (content: string, isFromUser: boolean) => ({
+    id: Math.random().toString(36).substring(7),
+    content,
+    isFromUser,
+    conversationId: conversation.id,
+    createdAt: new Date(),
+  });
+
   function handleNewMessage(content: string) {
-    // Call API Here
-    const newMessage = {
-      id: Math.random().toString(36).substring(7),
-      content,
-      isFromUser: true,
-      conversationId,
-      createdAt: new Date(),
-    };
-    const botMessage = simulateBotResponse();
-    setMessages((prevMessages) => [...prevMessages, newMessage, botMessage]);
-  }
-
-  function simulateBotResponse() {
-    const robotContent = [
-      "beep boop",
-      "I am a bot",
-      "Hello, human",
-      "How can I assist you?",
-    ];
-    const randomIndex = Math.floor(Math.random() * robotContent.length);
-    const content = robotContent[randomIndex];
-
-    const botMessage = {
-      id: Math.random().toString(36).substring(7),
-      content: content ?? "",
-      isFromUser: false,
-      conversationId,
-      createdAt: new Date(),
-    };
-
-    return botMessage;
+    onNewMessage(createMessage(content, true));
+    onNewMessage(createMessage("Your automated response here.", false));
   }
 
   return (
@@ -63,14 +47,12 @@ export default function Conversation({
       ref={messagesEndRef}
     >
       <header className="my-10 text-center">
-        <h1 className="text-2xl font-bold">Conversation {conversationId}</h1>
+        <h1 className="text-2xl font-bold">{conversation.title}</h1>
       </header>
       <div className="flex-1">
-        <div className="flex flex-col items-center">
-          {messages.map((message) => (
-            <MessageItem key={message.id} message={message} />
-          ))}
-        </div>
+        {messages.map((message) => (
+          <MessageItem key={message.id} message={message} />
+        ))}
       </div>
       <MessageInput onSend={handleNewMessage} />
     </div>

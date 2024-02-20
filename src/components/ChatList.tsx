@@ -9,70 +9,62 @@ import DeleteConfirmation from "./DeleteChatModal";
 
 interface Props {
   chats: Conversation[];
+  isNewChat: boolean;
+  onNewChat: (title: string) => void;
+  onEditChat: (id: string, newTitle: string) => void;
+  onDeleteChat: (id: string) => void;
+  onChatSelect: (chat: Conversation) => void;
+  selectedChatId?: string;
 }
 
-export default function ChatList({ chats: initialChats }: Props) {
+export default function ChatList({
+  chats,
+  isNewChat,
+  onNewChat,
+  onEditChat,
+  onDeleteChat,
+  onChatSelect,
+  selectedChatId,
+}: Props) {
   const { user } = useUser();
-  const [isNewChatModalOpen, setNewChatModalOpen] = useState(false);
+  const [isNewChatModalOpen, setNewChatModalOpen] = useState(isNewChat);
   const [isEditChatModalOpen, setEditChatModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
-  const [chats, setChats] = useState(initialChats);
 
-  // New Chat Modal
+  // Modal Functions
   const openNewChatModal = () => setNewChatModalOpen(true);
+
   const closeNewChatModal = () => setNewChatModalOpen(false);
 
-  // Edit Chat Modal
-  const openEditChatModal = (chat: Conversation) => {
-    setSelectedChat(chat);
-    setEditChatModalOpen(true);
-  };
   const closeEditChatModal = () => {
     setSelectedChat(null);
     setEditChatModalOpen(false);
   };
 
-  // Delete Confirmation Modal
-  const openDeleteConfirmationModal = (chat: Conversation) => {
-    setSelectedChat(chat);
-    setDeleteModalOpen(true);
-  };
   const closeDeleteConfirmationModal = () => {
     setSelectedChat(null);
     setDeleteModalOpen(false);
   };
 
+  // Parent Functions
   function handleCreateChat(title: string) {
-    console.log(`Creating new chat with title: ${title}`);
-    // Here you can call your API to create a new chat
-    const newChat = {
-      id: Math.random().toString(36).substring(7),
-      userId: user?.id ?? "",
-      title,
-    };
-    const updatedChats = [...chats, newChat];
-    setChats(updatedChats);
+    onNewChat(title);
     setNewChatModalOpen(false);
   }
 
-  function handleEdit(newTitle: string) {
-    console.log(`Editing chat title to: ${newTitle}`);
-    // Here you can call your API to update the chat title
-    const updatedChats = chats.map((chat) =>
-      chat.id === selectedChat!.id ? { ...chat, title: newTitle } : chat,
-    );
-    setChats(updatedChats);
-    setSelectedChat(null);
-    setEditChatModalOpen(false);
+  function handleEditChat(newTitle: string) {
+    if (selectedChat) {
+      onEditChat(selectedChat.id, newTitle);
+      setEditChatModalOpen(false);
+    }
   }
 
-  function handleDeleteChat(id: string) {
-    console.log(`Deleting chat with id: ${id}`);
-    // Here you can call your API to delete the chat
-    const updatedChats = chats.filter((chat) => chat.id !== id);
-    setChats(updatedChats);
-    setDeleteModalOpen(false);
+  function handleDeleteChat() {
+    if (selectedChat) {
+      onDeleteChat(selectedChat.id);
+      setDeleteModalOpen(false);
+    }
   }
 
   return (
@@ -105,12 +97,14 @@ export default function ChatList({ chats: initialChats }: Props) {
       <EditChatModal
         isOpen={isEditChatModalOpen}
         currentTitle={selectedChat?.title ?? ""}
-        onEdit={handleEdit}
+        onEdit={handleEditChat}
         onCancel={closeEditChatModal}
       />
       <DeleteConfirmation
         isOpen={isDeleteModalOpen}
-        onDelete={() => selectedChat && handleDeleteChat(selectedChat.id)}
+        onDelete={() => {
+          handleDeleteChat();
+        }}
         onCancel={closeDeleteConfirmationModal}
       />
       <div className="flex-grow overflow-auto scrollbar scrollbar-track-gray-100 scrollbar-thumb-gray-500">
@@ -118,8 +112,16 @@ export default function ChatList({ chats: initialChats }: Props) {
           <ChatItem
             key={chat.id}
             chat={chat}
-            onEdit={() => openEditChatModal(chat)}
-            onDelete={() => openDeleteConfirmationModal(chat)}
+            isSelected={chat.id === selectedChatId}
+            onClick={() => onChatSelect(chat)}
+            onEdit={() => {
+              setSelectedChat(chat);
+              setEditChatModalOpen(true);
+            }}
+            onDelete={() => {
+              setSelectedChat(chat);
+              setDeleteModalOpen(true);
+            }}
           />
         ))}
       </div>
