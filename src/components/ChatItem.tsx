@@ -1,7 +1,7 @@
-import type { Conversation } from "@prisma/client";
-
 import EditIcon from "./icons/EditIcon";
 import DeleteIcon from "./icons/DeleteIcon";
+
+import type { Conversation } from "@prisma/client";
 
 interface Props {
   chat: Conversation;

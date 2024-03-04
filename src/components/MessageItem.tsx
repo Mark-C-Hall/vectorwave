@@ -1,8 +1,9 @@
-import type { Message } from "@prisma/client";
 import React from "react";
 
 import BotIcon from "./icons/BotIcon";
 import UserIcon from "./icons/UserIcon";
+
+import type { Message } from "@prisma/client";
 
 interface Props {
   message: Message;

@@ -1,4 +1,3 @@
-import type { Conversation } from "@prisma/client";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useState } from "react";
 
@@ -6,6 +5,9 @@ import ChatItem from "./ChatItem";
 import NewChatModal from "./NewChatModal";
 import EditChatModal from "./EditChatModal";
 import DeleteConfirmation from "./DeleteChatModal";
+import PlusIcon from "./icons/PlusIcon";
+
+import type { Conversation } from "@prisma/client";
 
 interface Props {
   chats: Conversation[];
@@ -73,20 +75,7 @@ export default function ChatList({
         onClick={openNewChatModal}
         className="mb-14 mt-5 flex items-center justify-center rounded border border-white bg-black px-4 py-2 text-base text-white hover:bg-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          className="mr-1 inline-block h-5 w-5"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-          />
-        </svg>
+        <PlusIcon />
         New Chat
       </button>
       <NewChatModal

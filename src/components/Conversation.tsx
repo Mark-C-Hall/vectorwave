@@ -1,7 +1,8 @@
-import type { Conversation, Message } from "@prisma/client";
 import { useRef, useState, useLayoutEffect, useEffect } from "react";
 import MessageItem from "./MessageItem";
 import MessageInput from "./MessageInput";
+
+import type { Conversation, Message } from "@prisma/client";
 
 interface Props {
   conversation: Conversation;
