@@ -1,17 +1,37 @@
 import { useRouter } from "next/router";
 import { useUser } from "@clerk/nextjs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+import { initialMessages } from "~/data/placeholderData";
+import { api } from "~/utils/api";
 
 import type { Message, Conversation } from "@prisma/client";
 
-export default function useChats(
-  initalChats: Conversation[],
-  initalMessages: Record<string, Message[]>,
-) {
-  const router = useRouter();
+export default function useChats() {
   const { user } = useUser();
-  const [chats, setChats] = useState(initalChats);
-  const [messages, setMessages] = useState(initalMessages);
+  const router = useRouter();
+  const [chats, setChats] = useState<Conversation[]>([]);
+  const [messages, setMessages] =
+    useState<Record<string, Message[]>>(initialMessages);
+
+  const {
+    data: conversations,
+    isLoading,
+    error,
+  } = api.conversation.getConversationsByUser.useQuery(
+    {
+      userId: user?.id ?? "",
+    },
+    {
+      enabled: !!user?.id,
+    },
+  );
+
+  useEffect(() => {
+    if (conversations) {
+      setChats(conversations);
+    }
+  }, [conversations]);
 
   // Creates a new chat and navigates to its conversation page
   const createChat = (title: string) => {
@@ -61,6 +81,8 @@ export default function useChats(
   return {
     chats,
     messages,
+    isLoading,
+    error,
     createChat,
     editChat,
     deleteChat,

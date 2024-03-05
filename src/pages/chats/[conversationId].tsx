@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Head from "next/head";
 
-import { placeholderChats, initialMessages } from "~/data/placeholderData";
+import { initialMessages } from "~/data/placeholderData";
 import useChats from "~/hooks/useChats";
 import useAuthRedirect from "~/hooks/useAuthRedirect";
 import ChatList from "~/components/ChatList";
@@ -14,10 +14,7 @@ export default function ChatPage() {
   useAuthRedirect();
   const router = useRouter();
   const { conversationId } = router.query;
-  const { chats, createChat, editChat, deleteChat } = useChats(
-    placeholderChats,
-    initialMessages,
-  );
+  const { chats, createChat, editChat, deleteChat } = useChats();
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState(initialMessages);
 

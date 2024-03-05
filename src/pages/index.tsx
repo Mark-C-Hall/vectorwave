@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import Head from "next/head";
 
-import { placeholderChats, initialMessages } from "~/data/placeholderData";
 import useChats from "~/hooks/useChats";
 import useAuthRedirect from "~/hooks/useAuthRedirect";
 import ChatList from "~/components/ChatList";
@@ -9,10 +8,11 @@ import ChatList from "~/components/ChatList";
 export default function Home() {
   useAuthRedirect();
   const router = useRouter();
-  const { chats, createChat, editChat, deleteChat } = useChats(
-    placeholderChats,
-    initialMessages,
-  );
+  const { chats, isLoading, error, createChat, editChat, deleteChat } =
+    useChats();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading conversations.</div>;
 
   return (
     <>
