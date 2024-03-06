@@ -22,8 +22,8 @@ export default function ChatPage() {
   const [messages, setMessages] = useState(initialMessages);
 
   // Function to delete a chat and navigate to the root page
-  const deleteChatAndNavigate = (id: string) => {
-    deleteChat(id, (deletedChatId) => {
+  const deleteChatAndNavigate = async (id: string) => {
+    await deleteChat(id, (deletedChatId) => {
       if (selectedChat?.id === deletedChatId) {
         router
           .push("/")
