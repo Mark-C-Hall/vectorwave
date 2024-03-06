@@ -5,6 +5,7 @@ import { initialMessages } from "~/data/placeholderData";
 import useChats from "~/hooks/useChats";
 import useAuthRedirect from "~/hooks/useAuthRedirect";
 import LoadingPage from "~/components/LoadingPage";
+import ErrorPage from "~/components/ErrorPage";
 import Header from "~/components/Header";
 import ChatList from "~/components/ChatList";
 import ConversationComponent from "~/components/Conversation";
@@ -53,7 +54,7 @@ export default function ChatPage() {
   }, [chats, conversationId]);
 
   if (isLoading) return <LoadingPage />;
-  if (error) return <div>Error loading conversations.</div>;
+  if (error) return <ErrorPage />;
 
   return (
     <>
