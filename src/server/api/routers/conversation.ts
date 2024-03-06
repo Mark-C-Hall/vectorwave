@@ -22,4 +22,18 @@ export const conversationRouter = createTRPCRouter({
         },
       });
     }),
+
+  // Mutation to edit a conversation
+  editConversation: privateProcedure
+    .input(z.object({ id: z.string(), title: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.db.conversation.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          title: input.title,
+        },
+      });
+    }),
 });

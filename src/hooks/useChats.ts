@@ -27,8 +27,12 @@ export default function useChats() {
   } = api.conversation.getConversationsByUser.useQuery();
 
   // Create a new conversation
-  const { mutateAsync, isLoading: isCreatingConversation } =
+  const { mutateAsync: newChatMutate, isLoading: isCreatingConversation } =
     api.conversation.createConversation.useMutation();
+
+  // Update a conversation
+  const { mutateAsync: editChatMutate, isLoading: isEditingConversation } =
+    api.conversation.editConversation.useMutation();
 
   useEffect(() => {
     // Update the chats state when conversations data changes
@@ -50,7 +54,7 @@ export default function useChats() {
     }
 
     try {
-      const newChat = await mutateAsync({
+      const newChat = await newChatMutate({
         title,
       });
 
@@ -71,17 +75,30 @@ export default function useChats() {
   };
 
   /**
-   * Updates the title of an existing chat.
+   * Edits a chat with the specified ID by updating its title.
    *
    * @param id - The ID of the chat to edit.
    * @param newTitle - The new title for the chat.
    */
-  const editChat = (id: string, newTitle: string) => {
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat.id === id ? { ...chat, title: newTitle } : chat,
-      ),
-    );
+  const editChat = async (id: string, newTitle: string) => {
+    if (isEditingConversation) {
+      console.error("Mutation is already in progress");
+      return;
+    }
+
+    try {
+      const newChat = await editChatMutate({
+        id,
+        title: newTitle,
+      });
+
+      // Update the chats state with the updated chat
+      setChats((prevChats) =>
+        prevChats.map((chat) => (chat.id === id ? newChat : chat)),
+      );
+    } catch (error) {
+      console.error("Error editing chat:", error);
+    }
   };
 
   /**
