@@ -34,6 +34,10 @@ export default function useChats() {
   const { mutateAsync: editChatMutate, isLoading: isEditingConversation } =
     api.conversation.editConversation.useMutation();
 
+  // Delete a conversation
+  const { mutateAsync: deleteChatMutate } =
+    api.conversation.deleteConversation.useMutation();
+
   useEffect(() => {
     // Update the chats state when conversations data changes
     if (conversations) {
@@ -102,28 +106,32 @@ export default function useChats() {
   };
 
   /**
-   * Deletes a chat.
+   * Deletes a chat by its ID.
    *
    * @param id - The ID of the chat to delete.
-   * @param postDeleteCallback - Optional callback function to be called after the chat is deleted.
+   * @param postDeleteCallback - An optional callback function to be called after the chat is deleted.
    */
-  const deleteChat = (
+  const deleteChat = async (
     id: string,
     postDeleteCallback?: (deletedChatId: string) => void,
   ) => {
-    // Remove the chat from the chats state
-    setChats((prevChats) => prevChats.filter((chat) => chat.id !== id));
+    try {
+      await deleteChatMutate({ id });
 
-    // Remove the chat's messages from the messages state
-    setMessages((prevMessages) => {
-      const newMessages = { ...prevMessages };
-      delete newMessages[id];
-      return newMessages;
-    });
+      // Update the chats and messages state by removing the deleted chat
+      setChats((prevChats) => prevChats.filter((chat) => chat.id !== id));
+      setMessages((prevMessages) => {
+        const newMessages = { ...prevMessages };
+        delete newMessages[id];
+        return newMessages;
+      });
 
-    // Call the postDeleteCallback if provided
-    if (postDeleteCallback) {
-      postDeleteCallback(id);
+      // Call the post-delete callback if provided
+      if (postDeleteCallback) {
+        postDeleteCallback(id);
+      }
+    } catch (error) {
+      console.error("Failed to delete chat:", error);
     }
   };
 
