@@ -4,6 +4,7 @@ import Head from "next/head";
 import useChats from "~/hooks/useChats";
 import useAuthRedirect from "~/hooks/useAuthRedirect";
 import ChatList from "~/components/ChatList";
+import LoadingPage from "~/components/LoadingPage";
 
 export default function Home() {
   useAuthRedirect();
@@ -11,7 +12,7 @@ export default function Home() {
   const { chats, isLoading, error, createChat, editChat, deleteChat } =
     useChats();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <LoadingPage />;
   if (error) return <div>Error loading conversations.</div>;
 
   return (
