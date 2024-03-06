@@ -1,10 +1,10 @@
 import { useRouter } from "next/router";
-import Head from "next/head";
 
 import useChats from "~/hooks/useChats";
 import useAuthRedirect from "~/hooks/useAuthRedirect";
-import ChatList from "~/components/ChatList";
 import LoadingPage from "~/components/LoadingPage";
+import Header from "~/components/Header";
+import ChatList from "~/components/ChatList";
 
 export default function Home() {
   useAuthRedirect();
@@ -17,14 +17,10 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>VectorWave</title>
-        <meta
-          name="description"
-          content="Query documents with the power of AI"
-        />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Header
+        title="Vectorwave"
+        content="Harness the power of AI customer support with Vectorwave"
+      />
       <main className="flex">
         <ChatList
           chats={chats}

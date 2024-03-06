@@ -1,10 +1,11 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Head from "next/head";
 
 import { initialMessages } from "~/data/placeholderData";
 import useChats from "~/hooks/useChats";
 import useAuthRedirect from "~/hooks/useAuthRedirect";
+import LoadingPage from "~/components/LoadingPage";
+import Header from "~/components/Header";
 import ChatList from "~/components/ChatList";
 import ConversationComponent from "~/components/Conversation";
 
@@ -14,7 +15,8 @@ export default function ChatPage() {
   useAuthRedirect();
   const router = useRouter();
   const { conversationId } = router.query;
-  const { chats, createChat, editChat, deleteChat } = useChats();
+  const { chats, isLoading, error, createChat, editChat, deleteChat } =
+    useChats();
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState(initialMessages);
 
@@ -50,13 +52,15 @@ export default function ChatPage() {
     }
   }, [chats, conversationId]);
 
+  if (isLoading) return <LoadingPage />;
+  if (error) return <div>Error loading conversations.</div>;
+
   return (
     <>
-      <Head>
-        <title>{selectedChat ? selectedChat.title : "Loading..."}</title>
-        <meta name="description" content="Chat conversation page" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Header
+        title={selectedChat?.title ?? "Loading..."}
+        content="Chat Conversation Page"
+      />
       <main className="flex">
         <ChatList
           chats={chats}
