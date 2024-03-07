@@ -1,10 +1,9 @@
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 
-import { initialMessages } from "~/data/placeholderData";
 import { api } from "~/utils/api";
 
-import type { Message, Conversation } from "@prisma/client";
+import type { Conversation } from "@prisma/client";
 
 /**
  * Custom hook for managing chats and messages.
@@ -16,8 +15,6 @@ import type { Message, Conversation } from "@prisma/client";
 export default function useChats() {
   const router = useRouter();
   const [chats, setChats] = useState<Conversation[]>([]);
-  const [messages, setMessages] =
-    useState<Record<string, Message[]>>(initialMessages);
 
   // Fetch conversations from the API
   const {
@@ -64,10 +61,6 @@ export default function useChats() {
 
       // Update the chats and messages state with the new chat
       setChats((prevChats) => [...prevChats, newChat]);
-      setMessages((prevMessages) => ({
-        ...prevMessages,
-        [newChat.id]: [],
-      }));
 
       // Navigate to the chat page
       router
@@ -120,11 +113,6 @@ export default function useChats() {
 
       // Update the chats and messages state by removing the deleted chat
       setChats((prevChats) => prevChats.filter((chat) => chat.id !== id));
-      setMessages((prevMessages) => {
-        const newMessages = { ...prevMessages };
-        delete newMessages[id];
-        return newMessages;
-      });
 
       // Call the post-delete callback if provided
       if (postDeleteCallback) {
@@ -137,7 +125,6 @@ export default function useChats() {
 
   return {
     chats,
-    messages,
     isLoading: isConversationsLoading,
     error,
     createChat,

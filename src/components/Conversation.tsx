@@ -1,21 +1,17 @@
-import { useRef, useState, useLayoutEffect, useEffect } from "react";
-import MessageItem from "./MessageItem";
-import MessageInput from "./MessageInput";
+import { useRef, useLayoutEffect } from "react";
 
-import type { Conversation, Message } from "@prisma/client";
+import MessageItem from "~/components/MessageItem";
+import MessageInput from "~/components/MessageInput";
+import useMessage from "~/hooks/useMessages";
+
+import type { Conversation } from "@prisma/client";
 
 interface Props {
   conversation: Conversation;
-  messages: Message[];
-  onNewMessage: (newMessage: Message) => void;
 }
 
-export default function ConversationComponent({
-  conversation,
-  messages: initialMessages,
-  onNewMessage,
-}: Props) {
-  const [messages, setMessages] = useState(initialMessages);
+export default function ConversationComponent({ conversation }: Props) {
+  const { messages, handleNewMessage } = useMessage(conversation.id);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
@@ -24,23 +20,6 @@ export default function ConversationComponent({
       scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
     }
   }, [messages]);
-
-  useEffect(() => {
-    setMessages(initialMessages);
-  }, [initialMessages]);
-
-  const createMessage = (content: string, isFromUser: boolean) => ({
-    id: Math.random().toString(36).substring(7),
-    content,
-    isFromUser,
-    conversationId: conversation.id,
-    createdAt: new Date(),
-  });
-
-  function handleNewMessage(content: string) {
-    onNewMessage(createMessage(content, true));
-    onNewMessage(createMessage("Your automated response here.", false));
-  }
 
   return (
     <div
@@ -55,7 +34,9 @@ export default function ConversationComponent({
           <MessageItem key={message.id} message={message} />
         ))}
       </div>
-      <MessageInput onSend={handleNewMessage} />
+      <MessageInput
+        onSend={(content) => handleNewMessage(content, conversation.id)}
+      />
     </div>
   );
 }
