@@ -41,6 +41,12 @@ export const conversationRouter = createTRPCRouter({
   deleteConversation: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
+      await ctx.db.message.deleteMany({
+        where: {
+          conversationId: input.id,
+        },
+      });
+
       return ctx.db.conversation.delete({
         where: {
           id: input.id,

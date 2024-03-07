@@ -8,7 +8,6 @@ import Header from "~/components/Header";
 import ChatList from "~/components/ChatList";
 
 export default function Home() {
-  console.log("Here");
   useAuthRedirect();
   const router = useRouter();
   const { chats, isLoading, error, createChat, editChat, deleteChat } =
