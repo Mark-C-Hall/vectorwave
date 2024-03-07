@@ -5,13 +5,17 @@ import MessageInput from "~/components/MessageInput";
 import useMessage from "~/hooks/useMessages";
 
 import type { Conversation } from "@prisma/client";
+import LoadingIcon from "./icons/LoadingIcon";
+import ErrorPage from "./ErrorPage";
 
 interface Props {
   conversation: Conversation;
 }
 
 export default function ConversationComponent({ conversation }: Props) {
-  const { messages, handleNewMessage } = useMessage(conversation.id);
+  const { messages, isLoading, error, handleNewMessage } = useMessage(
+    conversation.id,
+  );
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
@@ -20,6 +24,9 @@ export default function ConversationComponent({ conversation }: Props) {
       scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
     }
   }, [messages]);
+
+  if (isLoading) return <LoadingIcon />;
+  if (error) return <ErrorPage />;
 
   return (
     <div

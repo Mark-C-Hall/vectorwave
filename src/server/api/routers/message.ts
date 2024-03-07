@@ -12,4 +12,23 @@ export const messageRouter = createTRPCRouter({
         },
       });
     }),
+
+  // Mutation to create a new message by conversation ID
+  createMessage: privateProcedure
+    .input(
+      z.object({
+        content: z.string(),
+        isFromUser: z.boolean(),
+        conversationId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return ctx.db.message.create({
+        data: {
+          content: input.content,
+          isFromUser: input.isFromUser,
+          conversationId: input.conversationId,
+        },
+      });
+    }),
 });
