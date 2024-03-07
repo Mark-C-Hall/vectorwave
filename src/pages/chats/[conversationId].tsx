@@ -1,16 +1,16 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-import { initialMessages } from "~/data/placeholderData";
-import useChats from "~/hooks/useChats";
 import useAuthRedirect from "~/hooks/useAuthRedirect";
+import useChats from "~/hooks/useChats";
+import useMessage from "~/hooks/useMessages";
 import LoadingPage from "~/components/LoadingPage";
 import ErrorPage from "~/components/ErrorPage";
 import Header from "~/components/Header";
 import ChatList from "~/components/ChatList";
 import ConversationComponent from "~/components/Conversation";
 
-import type { Conversation, Message } from "@prisma/client";
+import type { Conversation } from "@prisma/client";
 
 export default function ChatPage() {
   useAuthRedirect();
@@ -18,8 +18,8 @@ export default function ChatPage() {
   const { conversationId } = router.query;
   const { chats, isLoading, error, createChat, editChat, deleteChat } =
     useChats();
+  const { messages, handleNewMessage } = useMessage();
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState(initialMessages);
 
   // Function to delete a chat and navigate to the root page
   const deleteChatAndNavigate = async (id: string) => {
@@ -32,14 +32,6 @@ export default function ChatPage() {
           );
       }
     });
-  };
-
-  // Function to add a new message to the current conversation
-  const handleNewMessage = (conversationId: string, newMessage: Message) => {
-    setMessages((prevMessages) => ({
-      ...prevMessages,
-      [conversationId]: [...(prevMessages[conversationId] ?? []), newMessage],
-    }));
   };
 
   // Extract messages for the selected conversation
