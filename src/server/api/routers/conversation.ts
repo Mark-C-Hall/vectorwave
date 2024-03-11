@@ -11,6 +11,17 @@ export const conversationRouter = createTRPCRouter({
     });
   }),
 
+  // Query to get a conversation by user id
+  getConversationById: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      return ctx.db.conversation.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+    }),
+
   // Mutation to create a new conversation
   createConversation: privateProcedure
     .input(z.object({ title: z.string() }))

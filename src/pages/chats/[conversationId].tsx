@@ -1,9 +1,11 @@
 import { useRouter } from "next/router";
+import { useUser } from "@clerk/nextjs";
 
 import useAuthRedirect from "~/hooks/useAuthRedirect";
 import useChats from "~/hooks/useChats";
 import LoadingPage from "~/components/LoadingPage";
 import ErrorPage from "~/components/ErrorPage";
+import Page404 from "~/components/Page404";
 import Header from "~/components/Header";
 import ChatList from "~/components/ChatList";
 import ConversationComponent from "~/components/Conversation";
@@ -11,9 +13,17 @@ import ConversationComponent from "~/components/Conversation";
 export default function ChatPage() {
   useAuthRedirect();
   const router = useRouter();
+  const { user } = useUser();
   const { conversationId } = router.query;
-  const { chats, isLoading, error, createChat, editChat, deleteChat } =
-    useChats();
+  const {
+    chats,
+    conversation,
+    isLoading,
+    error,
+    createChat,
+    editChat,
+    deleteChat,
+  } = useChats(conversationId as string);
 
   const currentChat = chats.find((chat) => chat.id === conversationId);
 
@@ -32,6 +42,7 @@ export default function ChatPage() {
 
   if (isLoading) return <LoadingPage />;
   if (error) return <ErrorPage />;
+  if (user?.id !== conversation?.userId) return <Page404 />;
 
   return (
     <>

@@ -12,7 +12,7 @@ import type { Conversation } from "@prisma/client";
  *
  * @returns An object containing the chats, messages, loading state, error, and functions for creating, editing, and deleting chats.
  */
-export default function useChats() {
+export default function useChats(userId = "") {
   const router = useRouter();
   const [chats, setChats] = useState<Conversation[]>([]);
 
@@ -34,6 +34,13 @@ export default function useChats() {
   // Delete a conversation
   const { mutateAsync: deleteChatMutate } =
     api.conversation.deleteConversation.useMutation();
+
+  // Fetch a conversation by its ID
+  const {
+    data: conversation,
+    isLoading: isConversationLoading,
+    error: conversationError,
+  } = api.conversation.getConversationById.useQuery({ id: userId });
 
   useEffect(() => {
     // Update the chats state when conversations data changes
@@ -127,6 +134,9 @@ export default function useChats() {
     chats,
     isLoading: isConversationsLoading,
     error,
+    conversation,
+    isConversationLoading,
+    conversationError,
     createChat,
     editChat,
     deleteChat,
