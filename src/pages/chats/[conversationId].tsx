@@ -43,6 +43,7 @@ export default function ChatPage() {
     });
   };
 
+  // Check if the user is the owner of the conversation
   useEffect(() => {
     if (!isLoading && !isConversationLoading && user && conversation) {
       setShow404(user.id !== conversation.userId);

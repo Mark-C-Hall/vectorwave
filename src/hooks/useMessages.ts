@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 import { api } from "~/utils/api";
 
@@ -21,7 +22,9 @@ export default function useMessage(conversationId: string) {
 
   // Create a new message
   const { mutateAsync: newMessageMutate, isLoading: isCreatingMessage } =
-    api.message.createMessage.useMutation();
+    api.message.createMessage.useMutation({
+      onError: (error) => toast.error(error.message),
+    });
 
   /**
    * Function to create a new message and add it to the state.

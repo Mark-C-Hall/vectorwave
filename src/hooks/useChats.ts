@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 import { api } from "~/utils/api";
 
@@ -25,15 +26,21 @@ export default function useChats(userId = "") {
 
   // Create a new conversation
   const { mutateAsync: newChatMutate, isLoading: isCreatingConversation } =
-    api.conversation.createConversation.useMutation();
+    api.conversation.createConversation.useMutation({
+      onError: (error) => toast.error(error.message),
+    });
 
   // Update a conversation
   const { mutateAsync: editChatMutate, isLoading: isEditingConversation } =
-    api.conversation.editConversation.useMutation();
+    api.conversation.editConversation.useMutation({
+      onError: (error) => toast.error(error.message),
+    });
 
   // Delete a conversation
   const { mutateAsync: deleteChatMutate } =
-    api.conversation.deleteConversation.useMutation();
+    api.conversation.deleteConversation.useMutation({
+      onError: (error) => toast.error(error.message),
+    });
 
   // Fetch a conversation by its ID
   const {
