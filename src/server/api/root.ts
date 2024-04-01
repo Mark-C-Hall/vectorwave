@@ -1,6 +1,7 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { conversationRouter } from "~/server/api/routers/conversation";
 import { messageRouter } from "~/server/api/routers/message";
+import { openaiRouter } from "~/server/api/routers/openai";
 
 /**
  * This is the primary router for your server.
@@ -10,6 +11,7 @@ import { messageRouter } from "~/server/api/routers/message";
 export const appRouter = createTRPCRouter({
   conversation: conversationRouter,
   message: messageRouter,
+  openai: openaiRouter,
 });
 
 // export type definition of API
