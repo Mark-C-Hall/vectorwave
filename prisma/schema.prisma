@@ -8,14 +8,6 @@ generator client {
     provider = "prisma-client-js"
 }
 
-// model User {
-//     id            String         @id @default(cuid())
-//     authId        String         @unique
-//     conversations Conversation[]
-
-//     @@index([authId], name: "authIdIndex")
-// }
-
 model Conversation {
     id       String    @id @default(cuid())
     userId   String
@@ -28,7 +20,7 @@ model Conversation {
 model Message {
     id             String       @id @default(cuid())
     createdAt      DateTime     @default(now())
-    content        String
+    content        String       @db.Text
     isFromUser     Boolean
     conversationId String
     conversation   Conversation @relation(fields: [conversationId], references: [id])

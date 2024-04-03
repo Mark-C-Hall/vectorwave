@@ -13,9 +13,8 @@ interface Props {
 }
 
 export default function ConversationComponent({ conversation }: Props) {
-  const { messages, isLoading, error, handleNewMessage } = useMessage(
-    conversation.id,
-  );
+  const { messages, isLoading, loadingMessageId, error, handleNewMessage } =
+    useMessage(conversation.id);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
@@ -38,7 +37,11 @@ export default function ConversationComponent({ conversation }: Props) {
       </header>
       <div className="flex-1">
         {messages.map((message) => (
-          <MessageItem key={message.id} message={message} />
+          <MessageItem
+            key={message.id}
+            message={message}
+            isBotResponseLoading={loadingMessageId === message.id}
+          />
         ))}
       </div>
       <MessageInput

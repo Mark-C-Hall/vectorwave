@@ -49,4 +49,31 @@ export const messageRouter = createTRPCRouter({
         });
       }
     }),
+
+  // Mutation to update a message by ID
+  updateMessage: privateProcedure
+    .input(
+      z.object({
+        messageId: z.string(),
+        newContent: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await ctx.db.message.update({
+          where: {
+            id: input.messageId,
+          },
+          data: {
+            content: input.newContent,
+          },
+        });
+      } catch (error) {
+        console.error("Error updating message:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unable to update message",
+        });
+      }
+    }),
 });

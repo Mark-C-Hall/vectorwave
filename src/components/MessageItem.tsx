@@ -2,14 +2,16 @@ import React from "react";
 
 import BotIcon from "./icons/BotIcon";
 import UserIcon from "./icons/UserIcon";
+import LoadingIcon from "./icons/LoadingIcon";
 
 import type { Message } from "@prisma/client";
 
 interface Props {
   message: Message;
+  isBotResponseLoading: boolean;
 }
 
-export default function MessageItem({ message }: Props) {
+export default function MessageItem({ message, isBotResponseLoading }: Props) {
   const isFromUser = message.isFromUser;
   return (
     <div
@@ -27,11 +29,15 @@ export default function MessageItem({ message }: Props) {
         >
           {isFromUser ? <UserIcon /> : <BotIcon />}
           <div className="mx-auto max-w-[650px] flex-1">
-            {message.content.split("\n").map((line, index) => (
-              <p className="my-4" key={index}>
-                {line}
-              </p>
-            ))}
+            {isBotResponseLoading ? (
+              <LoadingIcon />
+            ) : (
+              message.content.split("\n").map((line, index) => (
+                <p className="my-4" key={index}>
+                  {line}
+                </p>
+              ))
+            )}
           </div>
           {/* Div is used to center above p evenly */}
           <div className="invisible">

@@ -6,78 +6,101 @@ import { api } from "~/utils/api";
 import type { Message } from "@prisma/client";
 
 /**
- * Custom hook for managing messages in a conversation.
- * @param conversationId - The ID of the conversation.
- * @returns An object containing messages, loading state, error, and a function to handle new messages.
+ * Hook to manage messages within a conversation.
+ *
+ * @param conversationId The ID of the conversation to manage messages for.
+ * @returns Object containing messages, a loading state, an error state, and a function to handle new messages.
  */
 export default function useMessage(conversationId: string) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loadingMessageId, setLoadingMessageId] = useState<string>("");
 
-  // Fetch messages from the API
+  // Use an API query to fetch messages for a given conversation ID.
   const {
     data: fetchedMessages,
     isLoading: isMessagesLoading,
     error,
   } = api.message.getMessagesByConversationId.useQuery({ conversationId });
 
-  // Create a new message
-  const { mutateAsync: newMessageMutate, isLoading: isCreatingMessage } =
+  // Define mutations for creating and updating messages.
+  const { mutateAsync: newMessageMutate } =
     api.message.createMessage.useMutation({
       onError: (error) => toast.error(error.message),
     });
 
-  /**
-   * Function to create a new message and add it to the state.
-   * @param content - The content of the message.
-   * @param isFromUser - Indicates whether the message is from the user or not.
-   * @param conversationId - The ID of the conversation.
-   */
+  const { mutateAsync: updateMessage } =
+    api.message.updateMessage.useMutation();
+  const { mutateAsync: getLLMResponse } =
+    api.openai.generateLLMResponse.useMutation();
+
+  // Create a new message in the conversation.
   const createMessage = async (
     content: string,
     isFromUser: boolean,
     conversationId: string,
   ) => {
-    if (isCreatingMessage) {
-      console.error("Mutation is already in progress");
-      return;
-    }
-
     try {
       const newMessage = await newMessageMutate({
         content,
         isFromUser,
         conversationId,
       });
-
-      // Update the messages state with the new message
       setMessages((prev) => [...prev, newMessage]);
+      return newMessage;
     } catch (error) {
       console.error("Error creating message:", error);
     }
   };
 
-  /**
-   * Function to handle a new message and bot response.
-   * @param content - The content of the message.
-   * @param conversationId - The ID of the conversation.
-   */
+  // Handle submission of a new message and the LLM's response.
   const handleNewMessage = async (content: string, conversationId: string) => {
-    await createMessage(content, true, conversationId);
+    const userMessage = await createMessage(content, true, conversationId);
 
-    // Example automated response
-    await createMessage("Your automated response here.", false, conversationId);
+    // If user message was successfully created, proceed to get LLM response.
+    if (userMessage) {
+      const tempBotMessage = await createMessage(
+        "Loading...",
+        false,
+        conversationId,
+      );
+      setLoadingMessageId(tempBotMessage?.id ?? "");
+
+      const llmResponse = await getLLMResponse({ conversationId });
+      if (llmResponse.response && tempBotMessage) {
+        // Update messages state optimistically with the LLM response.
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === tempBotMessage.id
+              ? { ...msg, content: llmResponse.response }
+              : msg,
+          ),
+        );
+
+        // Update the temporary message with the actual response.
+        await updateMessage({
+          messageId: tempBotMessage.id,
+          newContent: llmResponse.response,
+        });
+
+        setLoadingMessageId(""); // Clear the loading message ID.
+      } else {
+        setLoadingMessageId(""); // Clear the loading message ID if no response received.
+      }
+    }
   };
 
+  // When messages are fetched, update the state.
   useEffect(() => {
-    // Update the messages state when fetchedMessages data changes
     if (fetchedMessages) {
       setMessages(fetchedMessages);
     }
   }, [fetchedMessages]);
 
+  // Expose the state and handlers for use by consuming components.
   return {
     messages,
     isLoading: isMessagesLoading,
+    loadingMessageId,
     error,
     handleNewMessage,
   };
