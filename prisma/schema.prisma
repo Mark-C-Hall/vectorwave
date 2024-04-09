@@ -27,3 +27,13 @@ model Message {
 
     @@index([conversationId], name: "conversationIdIndex")
 }
+
+model Document {
+    id        String   @id @default(cuid())
+    userId    String
+    title     String
+    content   String   @db.Text
+    createdAt DateTime @default(now())
+
+    @@index([userId], name: "userIdIndex")
+}

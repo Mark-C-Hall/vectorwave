@@ -6,6 +6,7 @@ import NewChatModal from "./NewChatModal";
 import EditChatModal from "./EditChatModal";
 import DeleteConfirmation from "./DeleteChatModal";
 import PlusIcon from "./icons/PlusIcon";
+import GearIcon from "./icons/GearIcon";
 
 import type { Conversation } from "@prisma/client";
 
@@ -117,6 +118,7 @@ export default function ChatList({
       <div className="flex items-center justify-between">
         <UserButton afterSignOutUrl="/auth/login" />
         <p className="p-4">{user?.fullName}</p>
+        <GearIcon />
       </div>
     </aside>
   );
