@@ -22,29 +22,6 @@ export const conversationRouter = createTRPCRouter({
     }
   }),
 
-  // Query to get a conversation by user id
-  getConversationById: privateProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input, ctx }) => {
-      try {
-        const conversation = await ctx.db.conversation.findUnique({
-          where: {
-            id: input.id,
-          },
-        });
-        if (!conversation) {
-          throw new Error("Conversation not found");
-        }
-        return conversation;
-      } catch (error) {
-        console.error(error);
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Unable to find the conversation",
-        });
-      }
-    }),
-
   // Mutation to create a new conversation
   createConversation: privateProcedure
     .input(z.object({ title: z.string() }))

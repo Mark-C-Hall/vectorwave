@@ -1,6 +1,4 @@
 import { useRouter } from "next/router";
-import { useUser } from "@clerk/nextjs";
-import { useState, useEffect } from "react";
 
 import useAuthRedirect from "~/hooks/useAuthRedirect";
 import useChats from "~/hooks/useChats";
@@ -14,19 +12,9 @@ import ConversationComponent from "~/components/Conversation";
 export default function ChatPage() {
   useAuthRedirect();
   const router = useRouter();
-  const { user } = useUser();
   const { conversationId } = router.query;
-  const [show404, setShow404] = useState(false);
-  const {
-    chats,
-    conversation,
-    isLoading,
-    error,
-    isConversationLoading,
-    createChat,
-    editChat,
-    deleteChat,
-  } = useChats(conversationId as string);
+  const { chats, isLoading, error, createChat, editChat, deleteChat } =
+    useChats();
 
   const currentChat = chats.find((chat) => chat.id === conversationId);
 
@@ -43,21 +31,13 @@ export default function ChatPage() {
     });
   };
 
-  // Check if the user is the owner of the conversation
-  useEffect(() => {
-    if (!isLoading && !isConversationLoading && user && conversation) {
-      setShow404(user.id !== conversation.userId);
-    }
-  }, [isLoading, isConversationLoading, user, conversation]);
-
-  if (isLoading || isConversationLoading) return <LoadingPage />;
+  if (isLoading) return <LoadingPage />;
   if (error) return <ErrorPage />;
-  if (show404) return <Page404 />;
 
   return (
     <>
       <Header
-        title={currentChat?.title ?? "Loading..."}
+        title={currentChat?.title ?? "Page 404"}
         content="Chat Conversation Page"
       />
       <main className="flex">
@@ -73,7 +53,9 @@ export default function ChatPage() {
 
         {currentChat ? (
           <ConversationComponent conversation={currentChat} />
-        ) : null}
+        ) : (
+          <Page404 />
+        )}
       </main>
     </>
   );
