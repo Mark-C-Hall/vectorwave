@@ -1,8 +1,15 @@
 import { z } from "zod";
 import { OpenAI } from "openai";
+import { Pinecone } from "@pinecone-database/pinecone";
 import { TRPCError } from "@trpc/server";
 
 import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
+
+interface PineconeEmbedding {
+  id: string;
+  values: number[];
+  metadata: Record<string, string>;
+}
 
 export const openaiRouter = createTRPCRouter({
   /**
@@ -54,25 +61,74 @@ export const openaiRouter = createTRPCRouter({
 
   // Get vector embeddings for a given text
   embedFile: privateProcedure
-    .input(z.object({ text: z.string() }))
-    .mutation(async ({ input }) => {
+    .input(
+      z.object({
+        docId: z.string(),
+        text: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
       const openai = new OpenAI();
+      const pc = new Pinecone({
+        apiKey: process.env.PINECONE_API_KEY!,
+      });
 
       const paragraphs = input.text.split("\n").filter((p) => p.trim() !== "");
-      for (const paragraph of paragraphs) {
-        try {
-          const response = await openai.embeddings.create({
-            model: "text-embedding-3-small",
-            input: paragraph,
-          });
-          console.log(response.data);
-        } catch (error) {
-          console.error("Error getting embeddings: ", error);
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Unable to get embeddings",
-          });
-        }
+      const embeddings: PineconeEmbedding[] = [];
+      await Promise.all(
+        paragraphs.map(async (paragraph, i) => {
+          try {
+            const response = await openai.embeddings.create({
+              model: "text-embedding-3-small",
+              input: paragraph,
+            });
+            embeddings.push({
+              id: `${input.docId}:chunk${i}`,
+              values: response.data[0]?.embedding ?? [],
+              metadata: { text: paragraph },
+            });
+          } catch (error) {
+            console.error("Error getting embeddings: ", error);
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Unable to get embeddings",
+            });
+          }
+        }),
+      );
+      const index = pc.Index("vectorwave");
+      try {
+        await index.namespace(ctx.userId).upsert(embeddings);
+      } catch (error) {
+        console.error("Error upserting embeddings: ", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unable to upsert embeddings",
+        });
+      }
+    }),
+
+  // Remove vector embeddings for a given document
+  removeEmbeddings: privateProcedure
+    .input(z.object({ docId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const pc = new Pinecone({
+        apiKey: process.env.PINECONE_API_KEY!,
+      });
+      const index = pc.Index("vectorwave");
+      try {
+        const results = await index
+          .namespace(ctx.userId)
+          .listPaginated({ prefix: input.docId });
+        const ids = results.vectors?.map((v) => v.id) ?? [];
+        console.log("Deleting embeddings: ", ids);
+        await index.namespace(ctx.userId).deleteMany(ids);
+      } catch (error) {
+        console.error("Error deleting embeddings: ", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unable to delete embeddings",
+        });
       }
     }),
 });

@@ -25,7 +25,6 @@ export default function Settings() {
     handleUpload: originalHandleUpload,
     handleEdit,
     handleDelete,
-    handleEmbeddings,
   } = useDocs();
 
   if (isLoading || isDocsLoading) return <LoadingPage />;
@@ -39,7 +38,6 @@ export default function Settings() {
     reader.onload = async (e) => {
       const content = e.target?.result as string;
       await originalHandleUpload(file.name, content);
-      await handleEmbeddings(content);
     };
     reader.readAsText(file);
   };

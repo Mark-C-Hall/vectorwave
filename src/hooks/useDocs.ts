@@ -40,39 +40,35 @@ export default function useDocs() {
     onError: (error) => toast.error(error.message),
   });
 
-  // Mutation for embedding text.
+  // Mutation for embedding text and removing embeddings.
   const {
-    mutateAsync: getEmbeddings,
+    mutateAsync: embedFile,
     isLoading: isEmbeddingsLoading,
     error: embeddingsError,
   } = api.openai.embedFile.useMutation({
     onError: (error) => toast.error(error.message),
   });
 
+  const {
+    mutateAsync: removeEmbeddings,
+    isLoading: isRemoveEmbeddingsLoading,
+    error: removeEmbeddingsError,
+  } = api.openai.removeEmbeddings.useMutation({
+    onError: (error) => toast.error(error.message),
+  });
+
   // Upload a new document.
   const handleUpload = async (title: string, content: string) => {
     try {
-      if (isUploadLoading) {
+      if (isUploadLoading || isEmbeddingsLoading) {
         console.error("Mutation is already in progress");
         return;
       }
       const newDoc = await uploadDocument({ title, content });
+      await embedFile({ docId: newDoc.id, text: content });
       setDocuments([...documents, newDoc]);
     } catch (error) {
       console.error("Error uploading document: ", error);
-    }
-  };
-
-  // Embed text and get vector embeddings.
-  const handleEmbeddings = async (text: string) => {
-    try {
-      if (isEmbeddingsLoading) {
-        console.error("Mutation is already in progress");
-        return;
-      }
-      await getEmbeddings({ text });
-    } catch (error) {
-      console.error("Error getting embeddings: ", error);
     }
   };
 
@@ -96,11 +92,12 @@ export default function useDocs() {
   // Delete a document.
   const handleDelete = async (id: string) => {
     try {
-      if (isDeleteLoading) {
+      if (isDeleteLoading || isRemoveEmbeddingsLoading) {
         console.error("Mutation is already in progress");
         return;
       }
       await deleteDocument(id);
+      await removeEmbeddings({ docId: id });
       const updatedDocs = documents.filter((doc) => doc.id !== id);
       setDocuments(updatedDocs);
     } catch (error) {
@@ -121,16 +118,17 @@ export default function useDocs() {
       isUploadLoading ||
       isEditLoading ||
       isDeleteLoading ||
-      isEmbeddingsLoading,
+      isEmbeddingsLoading ||
+      isRemoveEmbeddingsLoading,
     error:
       fetchDocumentsError ??
       uploadError ??
       editError ??
       deleteError ??
-      embeddingsError,
+      embeddingsError ??
+      removeEmbeddingsError,
     handleUpload,
     handleEdit,
     handleDelete,
-    handleEmbeddings,
   };
 }
