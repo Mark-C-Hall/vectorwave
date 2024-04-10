@@ -40,6 +40,15 @@ export default function useDocs() {
     onError: (error) => toast.error(error.message),
   });
 
+  // Mutation for embedding text.
+  const {
+    mutateAsync: getEmbeddings,
+    isLoading: isEmbeddingsLoading,
+    error: embeddingsError,
+  } = api.openai.embedFile.useMutation({
+    onError: (error) => toast.error(error.message),
+  });
+
   // Upload a new document.
   const handleUpload = async (title: string, content: string) => {
     try {
@@ -51,6 +60,19 @@ export default function useDocs() {
       setDocuments([...documents, newDoc]);
     } catch (error) {
       console.error("Error uploading document: ", error);
+    }
+  };
+
+  // Embed text and get vector embeddings.
+  const handleEmbeddings = async (text: string) => {
+    try {
+      if (isEmbeddingsLoading) {
+        console.error("Mutation is already in progress");
+        return;
+      }
+      await getEmbeddings({ text });
+    } catch (error) {
+      console.error("Error getting embeddings: ", error);
     }
   };
 
@@ -95,10 +117,20 @@ export default function useDocs() {
   return {
     documents,
     isLoading:
-      isDocumentsLoading || isUploadLoading || isEditLoading || isDeleteLoading,
-    error: fetchDocumentsError ?? uploadError ?? editError ?? deleteError,
+      isDocumentsLoading ||
+      isUploadLoading ||
+      isEditLoading ||
+      isDeleteLoading ||
+      isEmbeddingsLoading,
+    error:
+      fetchDocumentsError ??
+      uploadError ??
+      editError ??
+      deleteError ??
+      embeddingsError,
     handleUpload,
     handleEdit,
     handleDelete,
+    handleEmbeddings,
   };
 }

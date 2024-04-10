@@ -51,4 +51,28 @@ export const openaiRouter = createTRPCRouter({
         });
       }
     }),
+
+  // Get vector embeddings for a given text
+  embedFile: privateProcedure
+    .input(z.object({ text: z.string() }))
+    .mutation(async ({ input }) => {
+      const openai = new OpenAI();
+
+      const paragraphs = input.text.split("\n").filter((p) => p.trim() !== "");
+      for (const paragraph of paragraphs) {
+        try {
+          const response = await openai.embeddings.create({
+            model: "text-embedding-3-small",
+            input: paragraph,
+          });
+          console.log(response.data);
+        } catch (error) {
+          console.error("Error getting embeddings: ", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Unable to get embeddings",
+          });
+        }
+      }
+    }),
 });
