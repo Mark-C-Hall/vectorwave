@@ -13,14 +13,14 @@ export default function useDocs() {
     data: fetchedDocuments,
     isLoading: isDocumentsLoading,
     error: fetchDocumentsError,
-  } = api.openai.getDocumentsByUser.useQuery();
+  } = api.document.getDocumentsByUser.useQuery();
 
   // Define mutations for uploading, editing, and deleting documents.
   const {
     mutateAsync: uploadDocument,
     isLoading: isUploadLoading,
     error: uploadError,
-  } = api.openai.uploadFile.useMutation({
+  } = api.document.uploadFile.useMutation({
     onError: (error) => toast.error(error.message),
   });
 
@@ -28,7 +28,7 @@ export default function useDocs() {
     mutateAsync: editDocument,
     isLoading: isEditLoading,
     error: editError,
-  } = api.openai.editDocument.useMutation({
+  } = api.document.editDocument.useMutation({
     onError: (error) => toast.error(error.message),
   });
 
@@ -36,7 +36,7 @@ export default function useDocs() {
     mutateAsync: deleteDocument,
     isLoading: isDeleteLoading,
     error: deleteError,
-  } = api.openai.deleteDocument.useMutation({
+  } = api.document.deleteDocument.useMutation({
     onError: (error) => toast.error(error.message),
   });
 
