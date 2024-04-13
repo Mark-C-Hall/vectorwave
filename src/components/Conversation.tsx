@@ -45,7 +45,9 @@ export default function ConversationComponent({ conversation }: Props) {
         ))}
       </div>
       <MessageInput
-        onSend={(content) => handleNewMessage(content, conversation.id)}
+        onSend={(content, fileContent, fileName) =>
+          handleNewMessage(content, fileContent, fileName)
+        }
       />
     </div>
   );

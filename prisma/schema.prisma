@@ -22,6 +22,7 @@ model Message {
     createdAt      DateTime     @default(now())
     content        String       @db.Text
     isFromUser     Boolean
+    isFile         Boolean      @default(false)
     conversationId String
     conversation   Conversation @relation(fields: [conversationId], references: [id])
 

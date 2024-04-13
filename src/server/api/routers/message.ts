@@ -29,6 +29,7 @@ export const messageRouter = createTRPCRouter({
       z.object({
         content: z.string(),
         isFromUser: z.boolean(),
+        isFile: z.boolean(),
         conversationId: z.string(),
       }),
     )
@@ -38,6 +39,7 @@ export const messageRouter = createTRPCRouter({
           data: {
             content: input.content,
             isFromUser: input.isFromUser,
+            isFile: input.isFile,
             conversationId: input.conversationId,
           },
         });

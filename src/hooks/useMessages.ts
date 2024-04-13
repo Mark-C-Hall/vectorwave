@@ -19,30 +19,47 @@ export default function useMessage(conversationId: string) {
   const {
     data: fetchedMessages,
     isLoading: isMessagesLoading,
-    error,
+    error: fetchMessagesError,
   } = api.message.getMessagesByConversationId.useQuery({ conversationId });
 
   // Define mutations for creating and updating messages.
-  const { mutateAsync: newMessageMutate } =
-    api.message.createMessage.useMutation({
-      onError: (error) => toast.error(error.message),
-    });
+  const {
+    mutateAsync: newMessageMutate,
+    isLoading: isMessageCreating,
+    error: createMessageError,
+  } = api.message.createMessage.useMutation({
+    onError: (error) => toast.error(error.message),
+  });
 
-  const { mutateAsync: updateMessage } =
-    api.message.updateMessage.useMutation();
-  const { mutateAsync: getLLMResponse } =
-    api.openai.generateLLMResponse.useMutation();
+  const {
+    mutateAsync: updateMessage,
+    isLoading: isMessageUpdating,
+    error: updateMessageError,
+  } = api.message.updateMessage.useMutation({
+    onError: (error) => toast.error(error.message),
+  });
+
+  // Define a mutation to generate a response from the LLM.
+  const {
+    mutateAsync: getLLMResponse,
+    isLoading: isLLMResponseLoading,
+    error: LLMResponseError,
+  } = api.openai.generateLLMResponse.useMutation({
+    onError: (error) => toast.error(error.message),
+  });
 
   // Create a new message in the conversation.
   const createMessage = async (
     content: string,
     isFromUser: boolean,
+    isFile: boolean,
     conversationId: string,
   ) => {
     try {
       const newMessage = await newMessageMutate({
         content,
         isFromUser,
+        isFile,
         conversationId,
       });
       setMessages((prev) => [...prev, newMessage]);
@@ -53,21 +70,37 @@ export default function useMessage(conversationId: string) {
   };
 
   // Handle submission of a new message and the LLM's response.
-  const handleNewMessage = async (content: string, conversationId: string) => {
-    const userMessage = await createMessage(content, true, conversationId);
+  const handleNewMessage = async (
+    content: string,
+    fileContent: string,
+    fileName: string,
+  ) => {
+    // First check if file is included. If so, create a new message.
+    if (fileContent) {
+      await createMessage(
+        "Attached file: " + fileName + "\n" + fileContent,
+        true,
+        true,
+        conversationId,
+      );
+    }
+
+    // Create User's Message
+    await createMessage(content, true, false, conversationId);
 
     // If user message was successfully created, proceed to get LLM response.
-    if (userMessage) {
+    if (!isMessageCreating) {
       const tempBotMessage = await createMessage(
         "Loading...",
+        false,
         false,
         conversationId,
       );
       setLoadingMessageId(tempBotMessage?.id ?? "");
 
       const llmResponse = await getLLMResponse({ conversationId });
+
       if (llmResponse.response && tempBotMessage) {
-        // Update messages state optimistically with the LLM response.
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === tempBotMessage.id
@@ -75,16 +108,13 @@ export default function useMessage(conversationId: string) {
               : msg,
           ),
         );
-
-        // Update the temporary message with the actual response.
         await updateMessage({
           messageId: tempBotMessage.id,
           newContent: llmResponse.response,
         });
-
-        setLoadingMessageId(""); // Clear the loading message ID.
+        setLoadingMessageId("");
       } else {
-        setLoadingMessageId(""); // Clear the loading message ID if no response received.
+        setLoadingMessageId("");
       }
     }
   };
@@ -101,7 +131,12 @@ export default function useMessage(conversationId: string) {
     messages,
     isLoading: isMessagesLoading,
     loadingMessageId,
-    error,
+    error:
+      fetchMessagesError ??
+      createMessageError ??
+      updateMessageError ??
+      LLMResponseError,
+    isUploading: isMessageCreating || isMessageUpdating || isLLMResponseLoading,
     handleNewMessage,
   };
 }

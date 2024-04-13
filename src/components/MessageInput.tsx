@@ -4,7 +4,7 @@ import SendIcon from "./icons/SendIcon";
 import PaperClipIcon from "./icons/PaperClipIcon";
 
 interface Props {
-  onSend: (message: string) => void;
+  onSend: (message: string, fileContent: string, fileName: string) => void;
 }
 
 export default function MessageInput({ onSend }: Props) {
@@ -19,9 +19,8 @@ export default function MessageInput({ onSend }: Props) {
   };
 
   const sendMessage = () => {
-    const combinedMessage = messageText + fileContent;
-    if (!combinedMessage.trim()) return;
-    onSend(combinedMessage);
+    if (!messageText.trim() && !fileContent.trim()) return;
+    onSend(messageText, fileContent, fileName);
     setMessageText("");
     setFileContent("");
     setFileName("");

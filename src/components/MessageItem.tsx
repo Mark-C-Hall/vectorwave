@@ -13,6 +13,7 @@ interface Props {
 
 export default function MessageItem({ message, isBotResponseLoading }: Props) {
   const isFromUser = message.isFromUser;
+  const isFile = message.isFile;
   return (
     <div
       key={message.id}
@@ -31,6 +32,8 @@ export default function MessageItem({ message, isBotResponseLoading }: Props) {
           <div className="mx-auto max-w-[650px] flex-1">
             {isBotResponseLoading ? (
               <LoadingIcon />
+            ) : isFile ? (
+              <p className="my-4">{message.content.split("\n")[0]}</p>
             ) : (
               message.content.split("\n").map((line, index) => (
                 <p className="my-4" key={index}>
