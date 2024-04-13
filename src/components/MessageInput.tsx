@@ -4,28 +4,37 @@ import SendIcon from "./icons/SendIcon";
 import PaperClipIcon from "./icons/PaperClipIcon";
 
 interface Props {
-  onSend: (message: string, fileContent: string, fileName: string) => void;
+  onSend: (
+    message: string,
+    fileContent: string,
+    fileName: string,
+    isVectorMode: boolean,
+  ) => void;
 }
 
 export default function MessageInput({ onSend }: Props) {
   const [messageText, setMessageText] = useState("");
   const [fileContent, setFileContent] = useState("");
   const [fileName, setFileName] = useState("");
+  const [isVectorMode, setIsVectorMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Handle form submission
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     sendMessage();
   };
 
+  // Send the message if it's not empty
   const sendMessage = () => {
     if (!messageText.trim() && !fileContent.trim()) return;
-    onSend(messageText, fileContent, fileName);
+    onSend(messageText, fileContent, fileName, isVectorMode);
     setMessageText("");
     setFileContent("");
     setFileName("");
   };
 
+  // Handle Enter key press to send the message
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
@@ -33,10 +42,12 @@ export default function MessageInput({ onSend }: Props) {
     }
   };
 
+  // Update message text when the textarea value changes
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessageText(event.target.value);
   };
 
+  // Handle file upload
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type === "text/plain") {
@@ -52,6 +63,7 @@ export default function MessageInput({ onSend }: Props) {
     }
   };
 
+  // Trigger file upload when the button is clicked
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
   };
@@ -64,7 +76,7 @@ export default function MessageInput({ onSend }: Props) {
         </div>
       )}
       <form
-        className="mx-auto my-4 flex w-full max-w-[650px] items-stretch rounded-lg border-2 border-white bg-slate-800"
+        className="mx-auto my-1 flex w-full max-w-[650px] items-stretch rounded-lg border-2 border-white bg-slate-800"
         onSubmit={handleSubmit}
       >
         <button
@@ -98,6 +110,15 @@ export default function MessageInput({ onSend }: Props) {
           <SendIcon />
         </button>
       </form>
+      <button
+        type="button"
+        className={`mx-auto w-full max-w-[650px] rounded px-2 py-1 ${
+          isVectorMode ? "bg-blue-500 text-white" : "bg-white text-black"
+        }`}
+        onClick={() => setIsVectorMode(!isVectorMode)}
+      >
+        {isVectorMode ? "Document Mode" : "Normal Mode"}
+      </button>
     </>
   );
 }
