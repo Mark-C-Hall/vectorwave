@@ -1,5 +1,5 @@
 datasource db {
-    provider     = "mysql"
+    provider     = "postgresql"
     url          = env("DATABASE_URL")
     relationMode = "prisma"
 }
@@ -36,5 +36,5 @@ model Document {
     content   String   @db.Text
     createdAt DateTime @default(now())
 
-    @@index([userId], name: "userIdIndex")
+    @@index([userId], name: "userDocumentIndex")
 }
